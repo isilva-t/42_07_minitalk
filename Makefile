@@ -6,7 +6,7 @@
 #    By: isilva-t <isilva-t@student.42porto.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:42:03 by isilva-t          #+#    #+#              #
-#    Updated: 2024/08/22 12:29:00 by isilva-t         ###   ########.fr        #
+#    Updated: 2024/08/22 16:04:07 by isilva-t         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,30 +26,43 @@ FT_PRINTF_DIR = ./libs/ft_printf/
 
 INCLUDES = -I $(LIBFT_DIR) -I $(GNL_DIR) -I $(FT_PRINTF_DIR)
 
-SRCS = $(GNL) $(FT_PRINTF) ./server.c
+SRCS_SERVER = $(GNL) $(FT_PRINTF) ./server.c
+SRCS_CLIENT = $(GNL) $(FT_PRINTF) ./client.c
 
-NAME = server
+SERVER = server
+CLIENT = client
 
-OBJS = ${SRCS:.c=.o}
+OBJS_SERVER = ${SRCS_SERVER:.c=.o}
+OBJS_CLIENT = ${SRCS_CLIENT:.c=.o}
 
-MSG0 = @echo "Compiling..."
+MSG_SERVER = @echo "Compiling Server..."
+MSG_CLIENT = @echo "Compiling Client..."
 MSG1 = @echo "_________________________________________________________________ Compiled!"
 
-all: $(NAME)
+all: $(SERVER) $(CLIENT)
 
-$(NAME):
-	$(MSG0);	
+$(SERVER):
+	$(MSG_SERVER);	
 	@make -C $(LIBFT_DIR) --silent
-	@$(CC) ${CFLAGS} $(SRCS) $(LIBFT) $(INCLUDES) -o $(NAME)
+	@$(CC) $(CFLAGS) $(SRCS_SERVER) $(LIBFT) $(INCLUDES) -o $(SERVER)
 	$(MSG1)
+
+$(CLIENT):
+	$(MSG_CLIENT);	
+	@make -C $(LIBFT_DIR) --silent
+	@$(CC) $(CFLAGS) $(SRCS_CLIENT) $(LIBFT) $(INCLUDES) -o $(CLIENT)
+	$(MSG1)
+
+r: 
+	gnome-terminal -- bash -c ./server
 
 clean:
 	@make clean -C $(LIBFT_DIR) --silent
-	@rm -rf ${OBJS}
+	@rm -rf ${OBJS_SERVER} ${OBJS_CLIENT}
 
 fclean: clean
 	@make fclean -C $(LIBFT_DIR) --silent
-	@rm -rf ${NAME}
+	@rm -rf ${SERVER} ${CLIENT}
 
 re: fclean all
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re r
