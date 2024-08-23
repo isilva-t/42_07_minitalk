@@ -53,6 +53,11 @@ $(CLIENT):
 	@$(CC) $(CFLAGS) $(SRCS_CLIENT) $(LIBFT) $(INCLUDES) -o $(CLIENT)
 	$(MSG1)
 
+k: re 
+	clear
+	$(MSG1)
+	
+
 r: 
 	gnome-terminal -- bash -c ./server
 
@@ -65,4 +70,4 @@ fclean: clean
 	@rm -rf ${SERVER} ${CLIENT}
 
 re: fclean all
-.PHONY: all clean fclean re r
+.PHONY: all clean fclean re r k

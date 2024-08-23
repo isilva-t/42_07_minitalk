@@ -20,4 +20,12 @@
 # include <stdlib.h>
 # include <unistd.h>
 
+# define WT 5000
+
+
+# define TEST ft_printf("TEST\n");
+# define TEST2 ft_printf("TEST2\n");
+# define TEST3 ft_printf("TEST3\n");
+
+
 #endif
