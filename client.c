@@ -6,7 +6,7 @@
 /*   By: isilva-t <isilva-t@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/22 13:56:10 by isilva-t          #+#    #+#             */
-/*   Updated: 2024/08/22 17:34:00 by isilva-t         ###   ########.fr       */
+/*   Updated: 2024/08/26 18:12:18 by isilva-t         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,9 @@ static void	send_kills(int pid, char *str)
 {
 	int		i;
 	char	c;
+	int		kill_value;
 
-	ft_printf("pid: %d\n", pid);
+	ft_printf("Server PID: %d\n", pid);
 	ft_printf("str: %s\n", str);
 	while (*str)
 	{
@@ -26,27 +27,36 @@ static void	send_kills(int pid, char *str)
 		while (i--)
 		{
 			if (c >> i & 1)
-				kill(pid, SIGUSR2);
+				kill_value = kill(pid, SIGUSR2);
 			else if (c >> i & 0)
-				kill(pid, SIGUSR1);
+				kill_value = kill(pid, SIGUSR1);
 			usleep(WT);
+			if (kill_value == -1)
+				i++;
 		}
 	}
 	i = 8;
 	while (i--)
 	{
-		kill(pid, SIGUSR1);
+		kill_value = kill(pid, SIGUSR1);
 		usleep(WT);
+		if (kill_value == -1)
+			i++;
 	}
 }
   
 
 static void	client_handle(int signal, siginfo_t *sig, void *a)
 {
+	(void)sig;
+	(void)a;
 	if (signal == SIGUSR2)
 		ft_printf("*");
 	else if (signal == SIGUSR1)
-		ft_printf("recceived\n!");
+	{
+		ft_printf("\nrecceived!\n");
+		exit (0);
+	}
 
 }
 
@@ -68,5 +78,7 @@ int	main(int ac, char **av)
 	sigaction(SIGUSR2, &s, NULL);
 
 	send_kills(ft_atoi(av[1]), av[2]);
+	while (1)
+		pause();
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: isilva-t <isilva-t@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/22 12:05:57 by isilva-t          #+#    #+#             */
-/*   Updated: 2024/08/22 17:31:37 by isilva-t         ###   ########.fr       */
+/*   Updated: 2024/08/26 18:13:52 by isilva-t         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,13 +72,12 @@ static void	handle_sig(int signal, siginfo_t *sig, void *a)
 	
 	if (i == 0)
 	{
-		write(1, "2\n", 2);
+		write(1, "z\n", 2);
 		i++;
 		append_node(&lst);
 	}
 	if (signal == SIGUSR2)
 	{	
-		write(1, "1", 1);
 		c |= 1;
 	}
 	if (++b == 8)
@@ -86,21 +85,23 @@ static void	handle_sig(int signal, siginfo_t *sig, void *a)
 		b = 0;
 		i++;
 		lst->data[i - 1] = c;
-		write(1, " ", 1);
+		write(1, &c, 1);
 		if (c == 0)
 		{
+			print_data(&lst);
 			write(1, "\n", 3);
 			//print_data(&lst);
 		}
 		c = 0;
+		kill(sig->si_pid, SIGUSR1);
 		return ;
 	}
 	else
 	{
-		write(1, "0", 1);
 		c <<= 1;
 	}
-	kill(pid
+	kill(sig->si_pid, SIGUSR2);
+	
 /*	if (i == 4095)
 	{
 		lst->data[i - 1] = '\0';
@@ -116,7 +117,7 @@ int	main(void)
 	pid = getpid();
 	ft_printf("Server PID: %d\n", pid);
 	if (sigemptyset(&s.sa_mask) < 0)
-		ft_printf("error\n");
+		ft_printf("Error\n");
 	s.sa_sigaction = handle_sig;
 	sigaction(SIGUSR1, &s, NULL);
 	sigaction(SIGUSR2, &s, NULL);
