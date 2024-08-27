@@ -16,10 +16,9 @@ static void	send_kills(int pid, char *str)
 {
 	int		i;
 	char	c;
-	int		kill_value;
 
+	i = 8;
 	ft_printf("Server PID: %d\n", pid);
-	ft_printf("str: %s\n", str);
 	while (*str)
 	{
 		i = 8;
@@ -27,34 +26,36 @@ static void	send_kills(int pid, char *str)
 		while (i--)
 		{
 			if (c >> i & 1)
-				kill_value = kill(pid, SIGUSR2);
-			else if (c >> i & 0)
-				kill_value = kill(pid, SIGUSR1);
-			usleep(WT);
-			if (kill_value == -1)
-				i++;
+			{
+				kill(pid, SIGUSR2);
+			}
+			else
+			{
+				kill(pid, SIGUSR1);
+			}
+			usleep(5000);
 		}
 	}
 	i = 8;
 	while (i--)
 	{
-		kill_value = kill(pid, SIGUSR1);
-		usleep(WT);
-		if (kill_value == -1)
-			i++;
+		kill(pid, SIGUSR1);
+		usleep(5000);
 	}
 }
   
 
 static void	client_handle(int signal, siginfo_t *sig, void *a)
 {
+	static unsigned int	n_bits = 0;
 	(void)sig;
 	(void)a;
 	if (signal == SIGUSR2)
-		ft_printf("*");
+		n_bits++;
 	else if (signal == SIGUSR1)
 	{
-		ft_printf("\nrecceived!\n");
+		n_bits++;
+		ft_printf("\nServer received %d bytes!\n", n_bits / 8);
 		exit (0);
 	}
 
@@ -72,13 +73,13 @@ int	main(int ac, char **av)
 	}
 
 	pid = getpid();
+	//ft_printf("\n\nBytes to send: %d bytes\n", ft_strlen(av[2]) + 1);
 	ft_printf("Client PID: %d\n", pid);
+	ft_memset(&s, 0, sizeof(s));
 	s.sa_sigaction = client_handle;
+	s.sa_flags = SA_SIGINFO;
 	sigaction(SIGUSR1, &s, NULL);
 	sigaction(SIGUSR2, &s, NULL);
-
 	send_kills(ft_atoi(av[1]), av[2]);
-	while (1)
-		pause();
 	return (0);
 }
