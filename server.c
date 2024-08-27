@@ -13,7 +13,7 @@
 #include "libs/libft/libft.h"
 #include "minitalk.h"
 
-#define STRSIZE 128
+#define STRSIZE 4096
 
 typedef struct s_data
 {
@@ -96,25 +96,27 @@ void	append_node(t_data **lst)
 }*/
 
 
-int	print_data(t_data **lst)
+void	print_data(t_data **lst)
 {
 	t_data	*cur;
 	t_data	*tmp;
 
 	if (!lst || !*lst)
-		return (0);
+		return ;
 	cur = *lst;
 	while (cur->prev)
 		cur = cur->prev;
 	while(cur)
 	{
 		//bytes +=ft_strlen(cur->data);
+			
 		ft_printf("%s", cur->data);
 		tmp = cur;
 		cur = cur->next;
 		free (tmp);
 	}
-	return (1);
+
+	return ;
 }
 
 void	save_data(t_data **lst, char c, int i)
@@ -141,9 +143,8 @@ static void	handle_sig(int signal, siginfo_t *sig, void *a)
 	}
 	usleep(50);
 	if (signal == SIGUSR2)
-	{	
 		c |= 1;
-	}
+	
 	if (++b == 8)
 	{
 		b = 0;
@@ -156,7 +157,7 @@ static void	handle_sig(int signal, siginfo_t *sig, void *a)
 			i = -1;
 			lst = NULL;
 			//write(1, "\n", 1);
-			usleep(5000);
+			usleep(500);
 			kill(sig->si_pid, SIGUSR1);
 			return ;
 			//print_data(&lst);
@@ -166,15 +167,10 @@ static void	handle_sig(int signal, siginfo_t *sig, void *a)
 		return ;
 	}
 	else  
-	{
 		c <<= 1;
-	}
 	kill(sig->si_pid, SIGUSR2);
-
 	if (i == STRSIZE -1)
-	{
 		i = -1;
-	}
 }
 int	main(void)
 {

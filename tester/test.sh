@@ -308,7 +308,7 @@ fi
 if [[ $t6 == 1 || $tb == 1 ]]
 then
     echo "${L_Green}\n [Test 6]\tTesting the connexion between server-client, sending str with 5 300 char (10 times)${NC}"
-    for i in {1..100}
+    for i in {1..10}
     do
         echo -n "${L_Green} [ ${i} ]${NC}"
         $PATH_TO_CLIENT $p_id "

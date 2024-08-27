@@ -33,17 +33,16 @@ static void	send_kills(int pid, char *str)
 			{
 				kill(pid, SIGUSR1);
 			}
-			usleep(5000);
+			pause();
 		}
 	}
 	i = 8;
 	while (i--)
 	{
 		kill(pid, SIGUSR1);
-		usleep(5000);
+		pause();
 	}
 }
-  
 
 static void	client_handle(int signal, siginfo_t *sig, void *a)
 {
