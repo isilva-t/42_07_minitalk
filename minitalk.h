@@ -20,15 +20,16 @@
 # include <stdlib.h>
 # include <unistd.h>
 
-# define STR_SIZE 4096
+# define STR_SIZE 128
 # define TRUE 1
 # define FALSE 0
 
 typedef struct s_data
 {
-	char	data[STR_SIZE];
+	char			data[STR_SIZE];
 	struct s_data	*prev;
+	struct s_data	*begin;
 	struct s_data	*next;
-}		t_data;
+}				t_data;
 
 #endif

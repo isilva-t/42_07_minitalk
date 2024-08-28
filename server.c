@@ -13,40 +13,9 @@
 #include "libs/libft/libft.h"
 #include "minitalk.h"
 
-int	mt_lstsize(t_data *lst)
-{
-	int		size;
-	t_data	*counter;
-
-	size = 0;
-	counter = (t_data *)lst;
-	while (counter)
-	{
-		size++;
-		counter = counter->next;
-	}
-	return (size);
-}
-
-t_data	*mt_lstlast(t_data *lst)
-{
-	t_data	*last;
-	int		size;
-
-	last = (t_data *)lst;
-	size = mt_lstsize(lst);
-	while (size > 1)
-	{
-		last = last->next;
-		size--;
-	}
-	return (last);
-}
-
 void	append_node(t_data **lst, int *i)
 {
 	t_data	*new;
-	t_data	*last_node;
 
 	if (!lst)
 		return ;
@@ -58,13 +27,15 @@ void	append_node(t_data **lst, int *i)
 	if (!(*lst))
 	{
 		new->prev = NULL;
+		new->begin = new;
 		*lst = new;
 	}
 	else
 	{
-		last_node = mt_lstlast(*lst);
-		last_node->next = new;
-		new->prev = last_node;
+		new->prev = *lst;
+		new->prev->next = new;
+		new->begin = new->prev->begin;
+		*lst = new;
 	}
 	*i = *i + 1;
 }
@@ -76,12 +47,10 @@ void	print_free_and_reset_i(t_data **lst, int *i, int client_pid)
 
 	if (!lst || !*lst)
 		return ;
-	cur = *lst;
-	while (cur->prev)
-		cur = cur->prev;
+	cur = (*lst)->begin;
 	while (cur)
 	{
-		ft_printf("%s\n", cur->data);
+		ft_printf("%s", cur->data);
 		tmp = cur;
 		cur = cur->next;
 		free (tmp);
@@ -102,7 +71,7 @@ void	save_byte(t_data **lst, char byte, int *i, unsigned int *bits)
 	*i = *i + 1;
 }
 
-void	send_received_to_client_and_verify_i(int client_pid, int *i, void *a)
+void	send_sigusr2_to_client_and_verify_i(int client_pid, int *i, void *a)
 {
 	kill(client_pid, SIGUSR2);
 	if (*i == STR_SIZE -1)
@@ -136,7 +105,7 @@ static void	handle_sig(int signal, siginfo_t *sig, void *a)
 	}
 	else
 		byte <<= 1;
-	send_received_to_client_and_verify_i(sig->si_pid, &i, a);
+	send_sigusr2_to_client_and_verify_i(sig->si_pid, &i, a);
 }
 
 int	main(void)
@@ -145,7 +114,8 @@ int	main(void)
 	int					pid;
 
 	pid = getpid();
-	ft_printf("Server PID: %d\n", pid);
+	ft_printf("Server PID: %d\nTry burn me! \xF0\x9F\x94\xA5\n", pid);
+	ft_printf("Ctrl + C to close Server.\xF0\x9F\x98\x8A Only when I message you! \xF0\x9F\x98\x80\n\n");
 	ft_memset(&s, 0, sizeof(s));
 	if (sigemptyset(&s.sa_mask) < 0)
 		ft_printf("Error\n");

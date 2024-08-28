@@ -14,30 +14,26 @@
 
 static void	send_kills(int pid, char *str)
 {
-	int		i;
-	char	c;
+	int		bit;
+	char	byte;
 
-	i = 8;
+	bit = 8;
 	ft_printf("Server PID: %d\n", pid);
 	while (*str)
 	{
-		i = 8;
-		c = *str++;
-		while (i--)
+		bit = 8;
+		byte = *str++;
+		while (bit--)
 		{
-			if (c >> i & 1)
-			{
+			if (byte >> bit & 1)
 				kill(pid, SIGUSR2);
-			}
 			else
-			{
 				kill(pid, SIGUSR1);
-			}
 			pause();
 		}
 	}
-	i = 8;
-	while (i--)
+	bit = 8;
+	while (bit--)
 	{
 		kill(pid, SIGUSR1);
 		pause();
@@ -47,6 +43,7 @@ static void	send_kills(int pid, char *str)
 static void	client_handle(int signal, siginfo_t *sig, void *a)
 {
 	static unsigned int	n_bits = 0;
+
 	(void)sig;
 	(void)a;
 	if (signal == SIGUSR2)
@@ -54,10 +51,9 @@ static void	client_handle(int signal, siginfo_t *sig, void *a)
 	else if (signal == SIGUSR1)
 	{
 		n_bits++;
-		ft_printf("\nServer received %d bytes!\n", n_bits / 8);
+		ft_printf("Server received %d bytes!\xF0\x9F\x8E\x89\n", n_bits / 8);
 		exit (0);
 	}
-
 }
 
 int	main(int ac, char **av)
@@ -70,10 +66,9 @@ int	main(int ac, char **av)
 		ft_printf("Please check your ARG's!\n");
 		return (1);
 	}
-
 	pid = getpid();
-	//ft_printf("\n\nBytes to send: %d bytes\n", ft_strlen(av[2]) + 1);
-	ft_printf("Client PID: %d\n", pid);
+	ft_printf("\nBytes to send: %d bytes\n", ft_strlen(av[2]) + 1);
+	ft_printf("Client PID: %d\n\n", pid);
 	ft_memset(&s, 0, sizeof(s));
 	s.sa_sigaction = client_handle;
 	s.sa_flags = SA_SIGINFO;
