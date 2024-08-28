@@ -6,46 +6,18 @@
 /*   By: isilva-t <isilva-t@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/22 12:05:57 by isilva-t          #+#    #+#             */
-/*   Updated: 2024/08/26 18:13:52 by isilva-t         ###   ########.fr       */
+/*   Updated: 2024/08/28 18:00:30 by isilva-t         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libs/libft/libft.h"
 #include "minitalk.h"
-
-void	append_node(t_data **lst, int *i)
-{
-	t_data	*new;
-
-	if (!lst)
-		return ;
-	new = malloc(sizeof(*new));
-	if (!new)
-		return ;
-	new->next = NULL;
-	ft_bzero(new->data, STR_SIZE);
-	if (!(*lst))
-	{
-		new->prev = NULL;
-		new->begin = new;
-		*lst = new;
-	}
-	else
-	{
-		new->prev = *lst;
-		new->prev->next = new;
-		new->begin = new->prev->begin;
-		*lst = new;
-	}
-	*i = *i + 1;
-}
 
 void	print_free_and_reset_i(t_data **lst, int *i, int client_pid)
 {
 	t_data	*cur;
 	t_data	*tmp;
 
-	if (!lst || !*lst)
+	if (!lst || !*lst || !i)
 		return ;
 	cur = (*lst)->begin;
 	while (cur)
@@ -64,6 +36,8 @@ void	print_free_and_reset_i(t_data **lst, int *i, int client_pid)
 
 void	save_byte(t_data **lst, char byte, int *i, unsigned int *bits)
 {
+	if (!lst || !*lst || !i || !bits)
+		return ;
 	*bits = 0;
 	while ((*lst)->next)
 		*lst = (*lst)->next;
@@ -73,6 +47,8 @@ void	save_byte(t_data **lst, char byte, int *i, unsigned int *bits)
 
 void	send_sigusr2_to_client_and_verify_i(int client_pid, int *i, void *a)
 {
+	if (!i)
+		return ;
 	kill(client_pid, SIGUSR2);
 	if (*i == STR_SIZE -1)
 		*i = -1;
@@ -100,7 +76,7 @@ static void	handle_sig(int signal, siginfo_t *sig, void *a)
 			return ;
 		}
 		byte = 0;
-		kill(sig->si_pid, SIGUSR2);
+		send_sigusr2_to_client_and_verify_i(sig->si_pid, &i, a);
 		return ;
 	}
 	else
@@ -115,7 +91,8 @@ int	main(void)
 
 	pid = getpid();
 	ft_printf("Server PID: %d\nTry burn me! \xF0\x9F\x94\xA5\n", pid);
-	ft_printf("Ctrl + C to close Server.\xF0\x9F\x98\x8A Only when I message you! \xF0\x9F\x98\x80\n\n");
+	ft_printf("Ctrl + C to close Server\xF0\x9F\x98\x8A");
+	ft_printf("but only when I message you! \xF0\x9F\x98\x80\n\n");
 	ft_memset(&s, 0, sizeof(s));
 	if (sigemptyset(&s.sa_mask) < 0)
 		ft_printf("Error\n");

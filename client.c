@@ -64,6 +64,7 @@ int	main(int ac, char **av)
 	if (ac != 3 || ft_strlen(av[1]) == 0)
 	{
 		ft_printf("Please check your ARG's!\n");
+		ft_printf("Usage: ./client server_pid text\n");
 		return (1);
 	}
 	pid = getpid();

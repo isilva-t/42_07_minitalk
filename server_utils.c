@@ -1,37 +1,40 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   minitalk.h                                         :+:      :+:    :+:   */
+/*   server_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: isilva-t <isilva-t@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/22 12:06:25 by isilva-t          #+#    #+#             */
+/*   Created: 2024/08/28 17:58:57 by isilva-t          #+#    #+#             */
 /*   Updated: 2024/08/28 18:00:01 by isilva-t         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MINITALK_H
-# define MINITALK_H
+#include "minitalk.h"
 
-# include "./libs/libft/libft.h"
-# include "./libs/ft_printf/ft_printf.h"
-
-# include <signal.h>
-# include <stdlib.h>
-# include <unistd.h>
-
-# define STR_SIZE 128
-# define TRUE 1
-# define FALSE 0
-
-typedef struct s_data
+void	append_node(t_data **lst, int *i)
 {
-	char			data[STR_SIZE];
-	struct s_data	*prev;
-	struct s_data	*begin;
-	struct s_data	*next;
-}				t_data;
+	t_data	*new;
 
-void	append_node(t_data **lst, int *i);
-
-#endif
+	if (!lst || !i)
+		return ;
+	new = malloc(sizeof(*new));
+	if (!new)
+		return ;
+	new->next = NULL;
+	ft_bzero(new->data, STR_SIZE);
+	if (!(*lst))
+	{
+		new->prev = NULL;
+		new->begin = new;
+		*lst = new;
+	}
+	else
+	{
+		new->prev = *lst;
+		new->prev->next = new;
+		new->begin = new->prev->begin;
+		*lst = new;
+	}
+	*i = *i + 1;
+}

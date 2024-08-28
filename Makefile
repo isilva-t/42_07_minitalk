@@ -6,7 +6,7 @@
 #    By: isilva-t <isilva-t@student.42porto.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/09 16:42:03 by isilva-t          #+#    #+#              #
-#    Updated: 2024/08/22 16:04:07 by isilva-t         ###   ########.fr        #
+#    Updated: 2024/08/28 18:01:09 by isilva-t         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,7 +26,7 @@ FT_PRINTF_DIR = ./libs/ft_printf/
 
 INCLUDES = -I $(LIBFT_DIR) -I $(GNL_DIR) -I $(FT_PRINTF_DIR)
 
-SRCS_SERVER = $(GNL) $(FT_PRINTF) ./server.c
+SRCS_SERVER = $(GNL) $(FT_PRINTF) ./server.c ./server_utils.c
 SRCS_CLIENT = $(GNL) $(FT_PRINTF) ./client.c
 
 SERVER = server
