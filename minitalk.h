@@ -20,16 +20,15 @@
 # include <stdlib.h>
 # include <unistd.h>
 
-////DELETE THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# include <stdio.h> //DELETE THIS!!!!!
-////DELETE THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# define STR_SIZE 4096
+# define TRUE 1
+# define FALSE 0
 
-# define WT 6000
-
-
-# define TEST ft_printf("TEST\n");
-# define TEST2 ft_printf("TEST2\n");
-# define TEST3 ft_printf("TEST3\n");
-
+typedef struct s_data
+{
+	char	data[STR_SIZE];
+	struct s_data	*prev;
+	struct s_data	*next;
+}		t_data;
 
 #endif

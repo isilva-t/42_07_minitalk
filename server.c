@@ -13,15 +13,6 @@
 #include "libs/libft/libft.h"
 #include "minitalk.h"
 
-#define STRSIZE 4096
-
-typedef struct s_data
-{
-	char	data[STRSIZE];
-	struct s_data	*prev;
-	struct s_data	*next;
-}		t_data;
-
 int	mt_lstsize(t_data *lst)
 {
 	int		size;
@@ -52,51 +43,33 @@ t_data	*mt_lstlast(t_data *lst)
 	return (last);
 }
 
-void	append_node(t_data **lst)
+void	append_node(t_data **lst, int *i)
 {
 	t_data	*new;
 	t_data	*last_node;
 
 	if (!lst)
 		return ;
-
 	new = malloc(sizeof(*new));
-	if(!new)
+	if (!new)
 		return ;
 	new->next = NULL;
-	ft_bzero(new->data, STRSIZE);
+	ft_bzero(new->data, STR_SIZE);
 	if (!(*lst))
 	{
-		//ft_printf("NO *lst\n");
 		new->prev = NULL;
 		*lst = new;
 	}
 	else
 	{
-		//ft_printf("node in lst\n");
 		last_node = mt_lstlast(*lst);
 		last_node->next = new;
 		new->prev = last_node;
 	}
+	*i = *i + 1;
 }
 
-/*void free_lst(t_data *lst)
-{
-	t_data	*cur;
-	t_data	*tmp;
-	if (!lst)
-		return ;
-	cur = lst;
-	while (cur)
-	{
-		tmp = cur;
-		cur = cur->next;
-		free (tmp);
-	}
-}*/
-
-
-void	print_data(t_data **lst)
+void	print_free_and_reset_i(t_data **lst, int *i, int client_pid)
 {
 	t_data	*cur;
 	t_data	*tmp;
@@ -106,72 +79,66 @@ void	print_data(t_data **lst)
 	cur = *lst;
 	while (cur->prev)
 		cur = cur->prev;
-	while(cur)
+	while (cur)
 	{
-		//bytes +=ft_strlen(cur->data);
-			
-		ft_printf("%s", cur->data);
+		ft_printf("%s\n", cur->data);
 		tmp = cur;
 		cur = cur->next;
 		free (tmp);
 	}
-
-	return ;
+	*i = -1;
+	*lst = NULL;
+	lst = NULL;
+	usleep(512);
+	kill(client_pid, SIGUSR1);
 }
 
-void	save_data(t_data **lst, char c, int i)
+void	save_byte(t_data **lst, char byte, int *i, unsigned int *bits)
 {
-	while((*lst)->next)
+	*bits = 0;
+	while ((*lst)->next)
 		*lst = (*lst)->next;
-	(*lst)->data[i] = c;
+	(*lst)->data[*i] = byte;
+	*i = *i + 1;
+}
+
+void	send_received_to_client_and_verify_i(int client_pid, int *i, void *a)
+{
+	kill(client_pid, SIGUSR2);
+	if (*i == STR_SIZE -1)
+		*i = -1;
+	(void)a;
 }
 
 static void	handle_sig(int signal, siginfo_t *sig, void *a)
 {
-	static unsigned int		b = 0;
-	static int		i = -1;
-	static unsigned char	c = 0;
+	static unsigned int		bits = 0;
+	static int				i = -1;
+	static unsigned char	byte = 0;
 	static t_data			*lst = NULL;
 
-	(void)a;
-	(void)sig;
-
 	if (i == -1)
-	{
-		i++;
-		append_node(&lst);
-	}
-	usleep(50);
+		append_node(&lst, &i);
+	usleep(128);
 	if (signal == SIGUSR2)
-		c |= 1;
-	
-	if (++b == 8)
+		byte |= 1;
+	if (++bits == 8)
 	{
-		b = 0;
-		save_data(&lst, c, i);
-		i++;
-		//write(1, &c, 1);
-		if (c == 0)
+		save_byte(&lst, byte, &i, &bits);
+		if (byte == 0)
 		{
-			print_data(&lst);
-			i = -1;
-			lst = NULL;
-			//write(1, "\n", 1);
-			usleep(500);
-			kill(sig->si_pid, SIGUSR1);
+			print_free_and_reset_i(&lst, &i, sig->si_pid);
 			return ;
-			//print_data(&lst);
 		}
-		c = 0;
+		byte = 0;
 		kill(sig->si_pid, SIGUSR2);
 		return ;
 	}
-	else  
-		c <<= 1;
-	kill(sig->si_pid, SIGUSR2);
-	if (i == STRSIZE -1)
-		i = -1;
+	else
+		byte <<= 1;
+	send_received_to_client_and_verify_i(sig->si_pid, &i, a);
 }
+
 int	main(void)
 {
 	struct sigaction	s;
