@@ -12,13 +12,13 @@
 
 #include "minitalk.h"
 
-static void	send_kills(int pid, char *str)
+static void	send_kills(int server_pid, char *str)
 {
 	int		bit;
 	char	byte;
 
 	bit = 8;
-	ft_printf("Server PID: %d\n", pid);
+	ft_printf("Server PID: %d\n", server_pid);
 	while (*str)
 	{
 		bit = 8;
@@ -26,16 +26,16 @@ static void	send_kills(int pid, char *str)
 		while (bit--)
 		{
 			if (byte >> bit & 1)
-				kill(pid, SIGUSR2);
+				kill(server_pid, SIGUSR2);
 			else
-				kill(pid, SIGUSR1);
+				kill(server_pid, SIGUSR1);
 			pause();
 		}
 	}
 	bit = 8;
 	while (bit--)
 	{
-		kill(pid, SIGUSR1);
+		kill(server_pid, SIGUSR1);
 		pause();
 	}
 }
@@ -51,7 +51,7 @@ static void	client_handle(int signal, siginfo_t *sig, void *a)
 	else if (signal == SIGUSR1)
 	{
 		n_bits++;
-		ft_printf("Server received %d bytes!\xF0\x9F\x8E\x89\n", n_bits / 8);
+		ft_printf("Server received %d bytes! %s\n", n_bits / 8, EMOJI_3);
 		exit (0);
 	}
 }
@@ -59,7 +59,7 @@ static void	client_handle(int signal, siginfo_t *sig, void *a)
 int	main(int ac, char **av)
 {
 	struct sigaction	s;
-	int					pid;
+	int					client_pid;
 
 	if (ac != 3 || ft_strlen(av[1]) == 0)
 	{
@@ -67,10 +67,12 @@ int	main(int ac, char **av)
 		ft_printf("Usage: ./client server_pid text\n");
 		return (1);
 	}
-	pid = getpid();
+	client_pid = getpid();
 	ft_printf("\nBytes to send: %d bytes\n", ft_strlen(av[2]) + 1);
-	ft_printf("Client PID: %d\n\n", pid);
+	ft_printf("Client PID: %d\n\n", client_pid);
 	ft_memset(&s, 0, sizeof(s));
+	if (sigemptyset(&s.sa_mask) < 0)
+		ft_printf("Error initializing sa_mask!\n");
 	s.sa_sigaction = client_handle;
 	s.sa_flags = SA_SIGINFO;
 	sigaction(SIGUSR1, &s, NULL);

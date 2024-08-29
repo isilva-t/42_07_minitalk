@@ -20,9 +20,13 @@
 # include <stdlib.h>
 # include <unistd.h>
 
-# define STR_SIZE 128
+# define STR_SIZE 128  
 # define TRUE 1
 # define FALSE 0
+
+# define EMOJI_1 "\xF0\x9F\x94\xA5"
+# define EMOJI_2 "\xF0\x9F\x98\x80"
+# define EMOJI_3 "\xF0\x9F\x8E\x89"
 
 typedef struct s_data
 {

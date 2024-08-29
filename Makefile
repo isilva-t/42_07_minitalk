@@ -53,14 +53,6 @@ $(CLIENT):
 	@$(CC) $(CFLAGS) $(SRCS_CLIENT) $(LIBFT) $(INCLUDES) -o $(CLIENT)
 	$(MSG1)
 
-k: re 
-	clear
-	$(MSG1)
-	
-
-r: 
-	gnome-terminal -- bash -c ./server
-
 clean:
 	@make clean -C $(LIBFT_DIR) --silent
 	@rm -rf ${OBJS_SERVER} ${OBJS_CLIENT}
@@ -70,4 +62,4 @@ fclean: clean
 	@rm -rf ${SERVER} ${CLIENT}
 
 re: fclean all
-.PHONY: all clean fclean re r k
+.PHONY: all clean fclean re

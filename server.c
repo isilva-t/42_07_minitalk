@@ -12,44 +12,41 @@
 
 #include "minitalk.h"
 
-void	print_free_and_reset_i(t_data **lst, int *i, int client_pid)
+void	print_free_and_reset_i(t_data **lst, int *i, int *client_pid)
 {
-	t_data	*cur;
 	t_data	*tmp;
 
-	if (!lst || !*lst || !i)
+	if (!lst || !*lst || !i || !client_pid)
 		return ;
-	cur = (*lst)->begin;
-	while (cur)
+	*lst = (*lst)->begin;
+	while (*lst)
 	{
-		ft_printf("%s", cur->data);
-		tmp = cur;
-		cur = cur->next;
+		tmp = *lst;
+		ft_printf("%s", (*lst)->data);
+		*lst = (*lst)->next;
 		free (tmp);
 	}
 	*i = -1;
 	*lst = NULL;
 	lst = NULL;
 	usleep(512);
-	kill(client_pid, SIGUSR1);
+	kill(*client_pid, SIGUSR1);
 }
 
-void	save_byte(t_data **lst, char byte, int *i, unsigned int *bits)
+void	save_byte(t_data **lst, unsigned char *byte, int *i, unsigned int *bits)
 {
-	if (!lst || !*lst || !i || !bits)
+	if (!lst || !*lst || !byte || !i || !bits)
 		return ;
+	(*lst)->data[*i] = *byte;
 	*bits = 0;
-	while ((*lst)->next)
-		*lst = (*lst)->next;
-	(*lst)->data[*i] = byte;
 	*i = *i + 1;
 }
 
-void	send_sigusr2_to_client_and_verify_i(int client_pid, int *i, void *a)
+void	send_sigusr2_to_client_and_verify_i(int *client_pid, int *i, void *a)
 {
-	if (!i)
+	if (!i || !client_pid)
 		return ;
-	kill(client_pid, SIGUSR2);
+	kill(*client_pid, SIGUSR2);
 	if (*i == STR_SIZE -1)
 		*i = -1;
 	(void)a;
@@ -57,8 +54,8 @@ void	send_sigusr2_to_client_and_verify_i(int client_pid, int *i, void *a)
 
 static void	handle_sig(int signal, siginfo_t *sig, void *a)
 {
-	static unsigned int		bits = 0;
 	static int				i = -1;
+	static unsigned int		bits = 0;
 	static unsigned char	byte = 0;
 	static t_data			*lst = NULL;
 
@@ -69,33 +66,33 @@ static void	handle_sig(int signal, siginfo_t *sig, void *a)
 		byte |= 1;
 	if (++bits == 8)
 	{
-		save_byte(&lst, byte, &i, &bits);
+		save_byte(&lst, &byte, &i, &bits);
 		if (byte == 0)
 		{
-			print_free_and_reset_i(&lst, &i, sig->si_pid);
+			print_free_and_reset_i(&lst, &i, &sig->si_pid);
 			return ;
 		}
 		byte = 0;
-		send_sigusr2_to_client_and_verify_i(sig->si_pid, &i, a);
+		send_sigusr2_to_client_and_verify_i(&sig->si_pid, &i, a);
 		return ;
 	}
 	else
 		byte <<= 1;
-	send_sigusr2_to_client_and_verify_i(sig->si_pid, &i, a);
+	send_sigusr2_to_client_and_verify_i(&sig->si_pid, &i, a);
 }
 
 int	main(void)
 {
 	struct sigaction	s;
-	int					pid;
+	int					server_pid;
 
-	pid = getpid();
-	ft_printf("Server PID: %d\nTry burn me! \xF0\x9F\x94\xA5\n", pid);
-	ft_printf("Ctrl + C to close Server\xF0\x9F\x98\x8A");
-	ft_printf("but only when I message you! \xF0\x9F\x98\x80\n\n");
+	server_pid = getpid();
+	ft_printf("Server PID: %d\nTry burn me! %s\n", server_pid, EMOJI_1);
+	ft_printf("press \"Ctrl + C\" to close Server, ");
+	ft_printf("but only when I'm idle! %s\n\n", EMOJI_2);
 	ft_memset(&s, 0, sizeof(s));
 	if (sigemptyset(&s.sa_mask) < 0)
-		ft_printf("Error\n");
+		ft_printf("Error initializing sa_mask!\n");
 	s.sa_sigaction = handle_sig;
 	s.sa_flags = SA_SIGINFO;
 	sigaction(SIGUSR1, &s, NULL);

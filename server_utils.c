@@ -25,15 +25,13 @@ void	append_node(t_data **lst, int *i)
 	ft_bzero(new->data, STR_SIZE);
 	if (!(*lst))
 	{
-		new->prev = NULL;
 		new->begin = new;
 		*lst = new;
 	}
 	else
 	{
-		new->prev = *lst;
-		new->prev->next = new;
-		new->begin = new->prev->begin;
+		new->begin = (*lst)->begin;
+		(*lst)->next = new;
 		*lst = new;
 	}
 	*i = *i + 1;
